@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexusShare</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:#00f3ff;--p:#ff2bd6;--bg:#05070f;--txt:#e8f4ff;--mut:#7f8fb0}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Segoe UI',sans-serif;font-size:18px;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg:before{content:"";position:absolute;left:-50%;right:-50%;bottom:-10%;height:70%;background:
+ linear-gradient(var(--c) 1px,transparent 1px) 0 0/60px 60px,linear-gradient(90deg,var(--c) 1px,transparent 1px) 0 0/60px 60px;
+ opacity:.12;transform:perspective(400px) rotateX(60deg);animation:grid 3s linear infinite}
+.bg:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(0,243,255,.15),transparent 40%),radial-gradient(circle at 85% 10%,rgba(255,43,214,.15),transparent 40%)}
+@keyframes grid{to{background-position:0 60px,60px 0}}
+.wrap{max-width:980px;margin:0 auto;padding:32px 18px 60px}
+h1{font-family:Orbitron,sans-serif;font-weight:800;text-align:center;font-size:clamp(2rem,7vw,3.4rem);letter-spacing:4px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(0,243,255,.5))}
+.sub{text-align:center;color:var(--mut);letter-spacing:3px;text-transform:uppercase;font-size:.85rem;margin:6px 0 28px}
+.tabs{display:flex;gap:12px;margin-bottom:18px}
+.tab{flex:1;padding:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--mut);border-radius:14px;font:600 .95rem Orbitron,sans-serif;cursor:pointer;transition:.25s}
+.tab.on{color:#fff;border-color:var(--c);box-shadow:0 0 22px rgba(0,243,255,.35),inset 0 0 18px rgba(0,243,255,.1)}
+.tab.pub.on{border-color:var(--p);box-shadow:0 0 22px rgba(255,43,214,.35),inset 0 0 18px rgba(255,43,214,.1)}
+.panel{background:rgba(14,20,38,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(0,243,255,.25);border-radius:22px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:.3s}
+.panel.pub{border-color:rgba(255,43,214,.3)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.code{flex:1;min-width:180px;padding:14px 16px;background:rgba(0,0,0,.45);border:1px solid var(--c);border-radius:12px;color:#fff;font:700 1.6rem Orbitron,monospace;letter-spacing:8px;text-align:center;outline:none}
+.code:focus{box-shadow:0 0 16px rgba(0,243,255,.4)}
+.btn{padding:13px 20px;border-radius:12px;border:1px solid var(--c);background:transparent;color:var(--c);font:600 .9rem Orbitron,sans-serif;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--c);color:#000;box-shadow:0 0 18px var(--c)}
+.btn.fill{background:linear-gradient(135deg,var(--c),#3b82ff);color:#000;border:0}
+.status{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:16px 0;color:var(--mut);font-size:.95rem}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:7px}
+.dot.live{background:#27ff9a;box-shadow:0 0 10px #27ff9a}
+.invite{color:var(--c);cursor:pointer;text-decoration:underline dotted}
+.drop{position:relative;margin-top:6px;border:2px dashed rgba(0,243,255,.4);border-radius:18px;padding:44px 16px;text-align:center;cursor:pointer;background:rgba(0,0,0,.25);transition:.25s;overflow:hidden}
+.pub .drop{border-color:rgba(255,43,214,.45)}
+.drop.over,.drop:hover{background:rgba(0,243,255,.07);border-style:solid;transform:scale(1.01)}
+.drop .ic{font-size:2.6rem;filter:drop-shadow(0 0 10px var(--c))}
+.drop h3{font:600 1.15rem Orbitron,sans-serif;margin:10px 0 4px}
+.drop p{color:var(--mut)}
+.drop input{display:none}
+.up{margin-top:14px;display:none}
+.up.on{display:block}
+.bar{height:8px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--p));box-shadow:0 0 12px var(--c);transition:width .15s}
+h4{font:600 .85rem Orbitron,sans-serif;letter-spacing:2px;color:var(--mut);margin:26px 0 12px;text-transform:uppercase}
+.file{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-left:4px solid var(--c);border-radius:12px;animation:in .4s}
+.pub .file{border-left-color:var(--p)}
+@keyframes in{from{opacity:0;transform:translateY(-10px) scale(.98)}}
+.file .n{flex:1;min-width:0}
+.file .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file .mt{color:var(--mut);font-size:.85rem}
+.ring{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:700 .8rem Orbitron,sans-serif;background:conic-gradient(var(--p) var(--deg,360deg),rgba(255,255,255,.1) 0)}
+.ring span{width:32px;height:32px;border-radius:50%;background:#0b1020;display:grid;place-items:center}
+.dl{padding:9px 16px;border-radius:9px;border:1px solid var(--c);color:var(--c);text-decoration:none;font-weight:700}
+.pub .dl{border-color:var(--p);color:var(--p)}
+.dl:hover{background:var(--c);color:#000}.pub .dl:hover{background:var(--p)}
+.empty{text-align:center;color:var(--mut);padding:18px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:rgba(10,16,32,.95);border:1px solid var(--c);padding:12px 20px;border-radius:12px;transition:.3s;z-index:9}
+.toast.on{transform:translate(-50%,0)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <h1>NEXUSSHARE</h1>
+  <div class="sub">Zero-lag · Zero-trace · Any device</div>
+
+  <div class="tabs">
+    <button class="tab on" id="tabRoom">⬡ Nexus Room</button>
+    <button class="tab pub" id="tabPub">⚡ Quantum Drop</button>
+  </div>
+
+  <div class="panel" id="panel">
+    <div id="roomCtl" class="row">
+      <input class="code" id="code" maxlength="6" inputmode="numeric" placeholder="000000" autocomplete="off">
+      <button class="btn" id="gen">Generate</button>
+      <button class="btn fill" id="join">Link</button>
+    </div>
+    <div id="pubInfo" class="hide" style="color:var(--mut)">Public zone — everyone sees it. Files self-destruct <b style="color:var(--p)" id="ttl">60</b>s after upload.</div>
+
+    <div class="status">
+      <span><i class="dot" id="dot"></i><span id="stat">Not connected</span></span>
+      <span id="peers"></span>
+      <span class="invite hide" id="invite">⧉ Copy invite link</span>
+    </div>
+
+    <label class="drop" id="drop">
+      <div class="ic">☁</div>
+      <h3>Drop files to beam</h3>
+      <p>or click to browse · 1 GB+ supported · streamed, not buffered</p>
+      <input type="file" id="pick" multiple>
+    </label>
+
+    <div class="up" id="up">
+      <div style="display:flex;justify-content:space-between"><span id="upName"></span><span id="upInfo" style="color:var(--mut)"></span></div>
+      <div class="bar"><i id="upBar"></i></div>
+    </div>
+
+    <h4>Live feed</h4>
+    <div id="list"><div class="empty">No files yet.</div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let mode = 'room', room = null, ws = null, files = new Map(), info = {}, retry = null;
+
+fetch('/api/info').then(r => r.json()).then(i => { info = i; $('ttl').textContent = i.public_ttl; });
+
+function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); setTimeout(() => e.classList.remove('on'), 2400); }
+function fmt(b) { const u = ['B','KB','MB','GB','TB']; let i = 0; while (b >= 1024 && i < 4) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
+
+function setMode(m) {
+  mode = m;
+  $('tabRoom').classList.toggle('on', m === 'room');
+  $('tabPub').classList.toggle('on', m === 'pub');
+  $('panel').classList.toggle('pub', m === 'pub');
+  $('roomCtl').classList.toggle('hide', m === 'pub');
+  $('pubInfo').classList.toggle('hide', m === 'room');
+  $('invite').classList.add('hide');
+  if (m === 'pub') connect('PUBLIC');
+  else { disconnect(); room = null; files.clear(); render(); setStat(false, 'Enter a 6-digit code'); }
+}
+
+function setStat(live, txt) { $('dot').classList.toggle('live', live); $('stat').textContent = txt; }
+
+function disconnect() { clearTimeout(retry); if (ws) { ws.onclose = null; ws.close(); ws = null; } }
+
+function connect(r) {
+  disconnect(); room = r; files.clear(); render(); setStat(false, 'Linking…');
+  const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  ws = new WebSocket(proto + location.host + '/ws/' + r);
+  ws.onopen = () => { setStat(true, r === 'PUBLIC' ? 'Quantum Drop live' : 'Room ' + r + ' linked'); if (r !== 'PUBLIC') $('invite').classList.remove('hide'); };
+  ws.onmessage = e => {
+    const m = JSON.parse(e.data);
+    if (m.type === 'snapshot') { files.clear(); m.files.forEach(add); }
+    else if (m.type === 'add') add(m.file);
+    else if (m.type === 'remove') files.delete(m.id);
+    else if (m.type === 'peers') $('peers').textContent = m.count + ' device' + (m.count === 1 ? '' : 's') + ' online';
+    render();
+  };
+  ws.onclose = () => { setStat(false, 'Reconnecting…'); retry = setTimeout(() => connect(r), 1500); };
+}
+function add(f) { f.until = Date.now() + f.remaining * 1000; f.total = (r => r === 'PUBLIC' ? info.public_ttl : info.room_ttl)(room) || 60; files.set(f.id, f); }
+
+function render() {
+  const list = $('list'); list.replaceChildren();
+  if (!files.size) { const d = document.createElement('div'); d.className = 'empty'; d.textContent = 'No files yet.'; list.append(d); return; }
+  [...files.values()].reverse().forEach(f => {
+    const row = document.createElement('div'); row.className = 'file'; row.dataset.id = f.id;
+    const n = document.createElement('div'); n.className = 'n';
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = f.name;
+    const mt = document.createElement('div'); mt.className = 'mt'; mt.textContent = fmt(f.size);
+    n.append(nm, mt);
+    row.append(n);
+    if (room === 'PUBLIC') {
+      const ring = document.createElement('div'); ring.className = 'ring'; ring.append(document.createElement('span')); row.append(ring);
+    }
+    const a = document.createElement('a'); a.className = 'dl'; a.href = f.url; a.textContent = '⇩ Get'; a.setAttribute('download', f.name);
+    row.append(a); list.append(row);
+  });
+  tick();
+}
+function tick() {
+  document.querySelectorAll('.file').forEach(row => {
+    const f = files.get(row.dataset.id), ring = row.querySelector('.ring'); if (!f || !ring) return;
+    const left = Math.max(0, (f.until - Date.now()) / 1000);
+    ring.style.setProperty('--deg', (left / f.total * 360) + 'deg');
+    ring.firstChild.textContent = Math.ceil(left);
+  });
+}
+setInterval(tick, 250);
+
+// ---- uploads (queued, raw streaming body, real progress) ----
+let queue = [], busy = false;
+function enqueue(list) {
+  if (!room) return toast('Link a room first');
+  for (const f of list) { if (info.max_bytes && f.size > info.max_bytes) toast(f.name + ' exceeds limit'); else queue.push(f); }
+  next();
+}
+function next() {
+  if (busy || !queue.length) return;
+  busy = true; const f = queue.shift(), t0 = Date.now(), r = room;
+  $('up').classList.add('on'); $('upName').textContent = f.name;
+  const x = new XMLHttpRequest();
+  x.open('POST', '/api/upload/' + r);
+  x.setRequestHeader('X-Filename', encodeURIComponent(f.name));
+  x.upload.onprogress = e => {
+    const s = (e.loaded / 1048576) / ((Date.now() - t0) / 1000 + .001);
+    $('upBar').style.width = (e.loaded / e.total * 100) + '%';
+    $('upInfo').textContent = Math.round(e.loaded / e.total * 100) + '% · ' + s.toFixed(1) + ' MB/s';
+  };
+  const done = ok => { busy = false; if (!ok) toast('Upload failed: ' + f.name); if (!queue.length) setTimeout(() => { $('up').classList.remove('on'); $('upBar').style.width = '0'; }, 800); next(); };
+  x.onload = () => done(x.status === 200); x.onerror = () => done(false);
+  x.send(f);
+}
+$('pick').onchange = e => { enqueue(e.target.files); e.target.value = ''; };
+const dz = $('drop');
+['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+dz.addEventListener('drop', e => enqueue(e.dataTransfer.files));
+
+// ---- controls ----
+$('tabRoom').onclick = () => setMode('room');
+$('tabPub').onclick = () => setMode('pub');
+$('code').oninput = e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+$('gen').onclick = () => { $('code').value = String(Math.floor(100000 + Math.random() * 900000)); joinRoom(); };
+$('join').onclick = joinRoom;
+$('code').onkeydown = e => e.key === 'Enter' && joinRoom();
+function joinRoom() { const c = $('code').value; if (c.length !== 6) return toast('Code must be 6 digits'); connect(c); }
+$('invite').onclick = () => {
+  const base = ['localhost', '127.0.0.1'].includes(location.hostname) && info.lan_url ? info.lan_url : location.origin;
+  navigator.clipboard.writeText(base + '/?room=' + room).then(() => toast('Invite link copied'), () => toast(base + '/?room=' + room));
+};
+
+const q = new URLSearchParams(location.search).get('room');
+if (q && /^\d{6}$/.test(q)) { $('code').value = q; joinRoom(); } else setStat(false, 'Enter a 6-digit code');
+</script>
+</body>
+</html>
